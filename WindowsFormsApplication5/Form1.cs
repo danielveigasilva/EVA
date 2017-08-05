@@ -61,7 +61,7 @@ namespace WindowsFormsApplication5
             if (vida < 5)
             {
                 tempo = 0;//seta a variável de tempo
-                timer1.Stop();
+                timer1.Stop();//para o timer
                 switch (e.Result.Text)
                 {
                     case "esquerda":
