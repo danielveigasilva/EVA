@@ -32,8 +32,6 @@ namespace WindowsFormsApplication5
         }
         private void LoadSpeech()
         {
-            try
-            {
                 engine = new SpeechRecognitionEngine();
                 engine.SetInputToDefaultAudioDevice();
 
@@ -42,11 +40,6 @@ namespace WindowsFormsApplication5
                 engine.LoadGrammar(new Grammar(new GrammarBuilder(new Choices(words))));
                 engine.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(rec);
                 engine.RecognizeAsync(RecognizeMode.Multiple);
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show("ocorreu um erro: " + ex.Message);
-            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
