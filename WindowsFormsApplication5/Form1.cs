@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using Microsoft.Speech.Recognition; //biblioteca usada para o reconhecimento
 using System.Threading;
 using System.Media; //biblioteca usada para reprodução de audios
-
+//TESTE DO PODER DO GIT HUB
 namespace WindowsFormsApplication5
 {
     public partial class Form1 : Form
