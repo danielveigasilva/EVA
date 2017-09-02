@@ -9,11 +9,12 @@ using System.Windows.Forms;
 using Microsoft.Speech.Recognition; //biblioteca usada para o reconhecimento
 using System.Threading;
 using System.Media; //biblioteca usada para reprodução de audios
-//TESTE DO PODER DO GIT HUB
 namespace WindowsFormsApplication5
 {
     public partial class Form1 : Form
     {
+        SoundPlayer troca = new SoundPlayer(@"c:\imagem\troca.wav");
+        SoundPlayer beep_direita = new SoundPlayer(@"c:\imagem\beep_direita.wav");
         SoundPlayer explosao = new SoundPlayer(@"c:\imagem\explosao.wav"); //explosão final de game over
         SoundPlayer desvio = new SoundPlayer(@"c:\imagem\desvio.wav"); //desvio de nave
         SoundPlayer esquerda = new SoundPlayer(@"c:\imagem\esquerda.wav"); //tiro vindo da esquerda
@@ -25,6 +26,13 @@ namespace WindowsFormsApplication5
         int n;//variável que armazena numero aleatório para ataque
         int t;//variável de segurança, usada na verificação da sirene
         int l;// variável de segurança de dado, sempre recebe valor de 'n'
+        int minigameid;//armazena id correspondente ao minigame, utilizada no reconhecimento
+
+        //NOTA: Sempre que relacionar um novo número a um minigame anotar aqui:
+        // -1 configuração
+        // 0 falas aleatórias
+        // 1 desvio de tiros
+
         private static SpeechRecognitionEngine engine;
         public Form1()
         {
@@ -51,48 +59,66 @@ namespace WindowsFormsApplication5
 
         private void rec(object s, SpeechRecognizedEventArgs e)
         {
-            if (vida < 5)
+            switch (minigameid)//limitação de palavras da gramática baseado no id de cada caso
             {
-                tempo = 0;//seta a variável de tempo
-                timer1.Stop();//para o timer
-                switch (e.Result.Text) //variável que possui o resultado obtido no reconhecimento
-                {
-                    case "esquerda":
-                        if (l == 0)
-                        {
-                            impesq.Play();
-                            vida++;
-                            sirene();
-                            verifica();
-                        }
-                        else
-                        {
-                            desvio.Play();
-                            ataque();
-                        }
+                case -1:
+                    switch (e.Result.Text)
+                    {
+                        case "esquerda":
+                            troca.Play();
                         break;
-                    case "direita":
-                        if (l == 1)
+                    }
+                break;
+                case 1:
+                    if (vida < 5)
+                    {
+                        tempo = 0;//seta a variável de tempo
+                        timer1.Stop();//para o timer
+                        switch (e.Result.Text) //variável que possui o resultado obtido no reconhecimento
                         {
-                            impdir.Play();
-                            vida++;
-                            sirene();
-                            verifica();
+                            case "esquerda":
+                                if (l == 0)
+                                {
+                                    impesq.Play();
+                                    vida++;
+                                    sirene();
+                                    verifica();
+                                }
+                                else
+                                {
+                                    desvio.Play();
+                                    ataque();
+                                }
+                                break;
+                            case "direita":
+                                if (l == 1)
+                                {
+                                    impdir.Play();
+                                    vida++;
+                                    sirene();
+                                    verifica();
+                                }
+                                else
+                                {
+                                    desvio.Play();
+                                    ataque();
+                                }
+                                break;
+
                         }
-                        else
-                        {
-                            desvio.Play();
-                            ataque();
-                        }
-                        break;
-                       
-                }
+                    }
+                    break;
             }
             
         }
+        private void config()
+        {
+            minigameid = -1; //id
+            beep_direita.Play();
+        }
         private void ataque()//ataque da nave inimiga
         {
-               
+                minigameid = 1;
                 Random randNum = new Random();
                 n = randNum.Next(2); //gera numero aleatório
                 tempo = 0;//seta a variável de tempo
@@ -116,6 +142,7 @@ namespace WindowsFormsApplication5
 
         private void button1_Click(object sender, EventArgs e)
         {
+            //config();
             ataque();
         }
 
@@ -143,6 +170,7 @@ namespace WindowsFormsApplication5
             if (vida == 3 && t != 1)
             {
                 t = 1;//impede reprodução repitida
+                pictureBox2.Image = Image.FromFile(@"c:\imagem\gif\sirene.gif");
                 axWindowsMediaPlayer2.URL = @"c:\imagem\sirene.mp4";
                 axWindowsMediaPlayer2.settings.playCount = 2000;
             }
