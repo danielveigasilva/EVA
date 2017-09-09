@@ -13,14 +13,14 @@ namespace WindowsFormsApplication5
 {
     public partial class Form1 : Form
     {
-        SoundPlayer troca = new SoundPlayer(@"c:\imagem\troca.wav");
-        SoundPlayer beep_direita = new SoundPlayer(@"c:\imagem\beep_direita.wav");
-        SoundPlayer explosao = new SoundPlayer(@"c:\imagem\explosao.wav"); //explosão final de game over
-        SoundPlayer desvio = new SoundPlayer(@"c:\imagem\desvio.wav"); //desvio de nave
-        SoundPlayer esquerda = new SoundPlayer(@"c:\imagem\esquerda.wav"); //tiro vindo da esquerda
-        SoundPlayer direita = new SoundPlayer(@"c:\imagem\direita.wav"); //tiro vindo da direita
-        SoundPlayer impesq = new SoundPlayer(@"c:\imagem\impdir.wav"); //impacto na esquerda
-        SoundPlayer impdir = new SoundPlayer(@"c:\imagem\imesq.wav");// impacto na direita
+        SoundPlayer troca = new SoundPlayer(@"c:\imagem\audios\troca.wav");
+        SoundPlayer beep_direita = new SoundPlayer(@"c:\imagem\audios\beep_direita.wav");
+        SoundPlayer explosao = new SoundPlayer(@"c:\imagem\audios\explosao.wav"); //explosão final de game over
+        SoundPlayer desvio = new SoundPlayer(@"c:\imagem\audios\desvio.wav"); //desvio de nave
+        SoundPlayer esquerda = new SoundPlayer(@"c:\imagem\audios\esquerda.wav"); //tiro vindo da esquerda
+        SoundPlayer direita = new SoundPlayer(@"c:\imagem\audios\direita.wav"); //tiro vindo da direita
+        SoundPlayer impesq = new SoundPlayer(@"c:\imagem\audios\impdir.wav"); //impacto na esquerda
+        SoundPlayer impdir = new SoundPlayer(@"c:\imagem\audios\imesq.wav");// impacto na direita
         int vida; //do jogador
         int tempo; //intervalo de reação
         int n;//variável que armazena numero aleatório para ataque
@@ -29,6 +29,8 @@ namespace WindowsFormsApplication5
         int minigameid;//armazena id correspondente ao minigame, utilizada no reconhecimento
 
         //NOTA: Sempre que relacionar um novo número a um minigame anotar aqui:
+        // 111 morto
+        //-2 inicio
         // -1 configuração
         // 0 falas aleatórias
         // 1 desvio de tiros
@@ -43,7 +45,7 @@ namespace WindowsFormsApplication5
                 engine = new SpeechRecognitionEngine(); //caso haja erro nesta linha o problema é com os pacotes, verificar também a versão do sistema: 32 ou 64 bits
                 engine.SetInputToDefaultAudioDevice(); //caso haja erro nesta linha significa que o programa não conseguiu localizar um microfone para ser utilizado no reconhecimento
 
-                string[] words = { "esquerda", "direita" };//gramática, novas palavras a serem reconhecidas devem ser introduzidas aqui
+                string[] words = {"iniciar", "esquerda", "direita" };//gramática, novas palavras a serem reconhecidas devem ser introduzidas aqui
 
                 engine.LoadGrammar(new Grammar(new GrammarBuilder(new Choices(words))));//carrega gramática
                 engine.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(rec);
@@ -52,8 +54,10 @@ namespace WindowsFormsApplication5
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            axWindowsMediaPlayer1.URL = @"c:\imagem\fundo.wav"; //som de fundo
+            axWindowsMediaPlayer1.URL = @"c:\imagem\audios\fundo.wav"; //som de fundo
             axWindowsMediaPlayer1.settings.playCount = 1000; //quantidade de repetição do audio
+            axWindowsMediaPlayer1.settings.volume = 30;
+            minigameid = -2;
             LoadSpeech(); //inicia o reconhecimento
         }
 
@@ -61,6 +65,15 @@ namespace WindowsFormsApplication5
         {
             switch (minigameid)//limitação de palavras da gramática baseado no id de cada caso
             {
+                case -2:
+                    switch (e.Result.Text)
+                    {
+                        case "iniciar":
+                            inicio();
+                            minigameid = 111;
+                            break;
+                    }
+                break;
                 case -1:
                     switch (e.Result.Text)
                     {
@@ -111,6 +124,12 @@ namespace WindowsFormsApplication5
             }
             
         }
+        private void inicio()
+        {
+            axWindowsMediaPlayer2.URL = @"c:\imagem\audios\Carregamento.wav";
+            axWindowsMediaPlayer2.settings.volume = 2000;
+            pictureBox2.Image = Image.FromFile(@"c:\imagem\gif\igo.gif");
+        }
         private void config()
         {
             minigameid = -1; //id
@@ -140,12 +159,6 @@ namespace WindowsFormsApplication5
                 }
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            //config();
-            ataque();
-        }
-
         private void timer1_Tick(object sender, EventArgs e)
         {
             tempo++;//adiciona 1 a cada 1 segundo a variavel tempo
@@ -171,7 +184,7 @@ namespace WindowsFormsApplication5
             {
                 t = 1;//impede reprodução repitida
                 pictureBox2.Image = Image.FromFile(@"c:\imagem\gif\sirene.gif");
-                axWindowsMediaPlayer2.URL = @"c:\imagem\sirene.mp4";
+                axWindowsMediaPlayer2.URL = @"c:\imagem\audios\sirene.mp4";
                 axWindowsMediaPlayer2.settings.playCount = 2000;
             }
         }
@@ -188,7 +201,8 @@ namespace WindowsFormsApplication5
                 axWindowsMediaPlayer1.Ctlcontrols.stop();
                 explosao.Play();
                 axWindowsMediaPlayer2.settings.playCount = 0;
-                axWindowsMediaPlayer2.URL = @"c:\imagem\fimdejogo.mp3";
+                axWindowsMediaPlayer2.URL = @"c:\imagem\audios\fimdejogo.mp3";
+                pictureBox2.Image = Image.FromFile(@"c:\imagem\gif\gameover.jpg");
                 axWindowsMediaPlayer2.settings.volume = 2000;
             }
         }
