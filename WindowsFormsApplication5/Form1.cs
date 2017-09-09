@@ -13,21 +13,21 @@ namespace WindowsFormsApplication5
 {
     public partial class Form1 : Form
     {
-        SoundPlayer troca = new SoundPlayer(@"c:\imagem\audios\troca.wav");
-        SoundPlayer beep_direita = new SoundPlayer(@"c:\imagem\audios\beep_direita.wav");
-        SoundPlayer explosao = new SoundPlayer(@"c:\imagem\audios\explosao.wav"); //explosão final de game over
-        SoundPlayer desvio = new SoundPlayer(@"c:\imagem\audios\desvio.wav"); //desvio de nave
-        SoundPlayer esquerda = new SoundPlayer(@"c:\imagem\audios\esquerda.wav"); //tiro vindo da esquerda
-        SoundPlayer direita = new SoundPlayer(@"c:\imagem\audios\direita.wav"); //tiro vindo da direita
-        SoundPlayer impesq = new SoundPlayer(@"c:\imagem\audios\impdir.wav"); //impacto na esquerda
-        SoundPlayer impdir = new SoundPlayer(@"c:\imagem\audios\imesq.wav");// impacto na direita
+        SoundPlayer troca = new SoundPlayer(@"arquivos\audios\troca.wav"); //nao funciona
+        SoundPlayer beep_direita = new SoundPlayer(@"arquivos\audios\beep_direita.wav"); //usado na configuração de audio
+        SoundPlayer explosao = new SoundPlayer(@"arquivos\audios\explosao.wav"); //explosão final de game over
+        SoundPlayer desvio = new SoundPlayer(@"arquivos\audios\desvio.wav"); //desvio de nave
+        SoundPlayer esquerda = new SoundPlayer(@"arquivos\audios\esquerda.wav"); //tiro vindo da esquerda
+        SoundPlayer direita = new SoundPlayer(@"arquivos\audios\direita.wav"); //tiro vindo da direita
+        SoundPlayer impesq = new SoundPlayer(@"arquivos\audios\impdir.wav"); //impacto na esquerda
+        SoundPlayer impdir = new SoundPlayer(@"arquivos\audios\imesq.wav");// impacto na direita
         int vida; //do jogador
         int tempo; //intervalo de reação
         int n;//variável que armazena numero aleatório para ataque
         int t;//variável de segurança, usada na verificação da sirene
         int l;// variável de segurança de dado, sempre recebe valor de 'n'
         int minigameid;//armazena id correspondente ao minigame, utilizada no reconhecimento
-
+        int tempo_padrao; //tempo padrao
         //NOTA: Sempre que relacionar um novo número a um minigame anotar aqui:
         // 111 morto
         //-2 inicio
@@ -54,7 +54,7 @@ namespace WindowsFormsApplication5
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            axWindowsMediaPlayer1.URL = @"c:\imagem\audios\fundo.wav"; //som de fundo
+            axWindowsMediaPlayer1.URL = @"arquivos\audios\fundo.wav"; //som de fundo
             axWindowsMediaPlayer1.settings.playCount = 1000; //quantidade de repetição do audio
             axWindowsMediaPlayer1.settings.volume = 30;
             minigameid = -2;
@@ -126,9 +126,10 @@ namespace WindowsFormsApplication5
         }
         private void inicio()
         {
-            axWindowsMediaPlayer2.URL = @"c:\imagem\audios\Carregamento.wav";
+            axWindowsMediaPlayer2.URL = @"arquivos\audios\Carregamento.wav";
             axWindowsMediaPlayer2.settings.volume = 2000;
-            pictureBox2.Image = Image.FromFile(@"c:\imagem\gif\igo.gif");
+            pictureBox2.Image = Image.FromFile(@"arquivos\gif\igo.gif");
+            timer_padrao.Start();
         }
         private void config()
         {
@@ -183,8 +184,8 @@ namespace WindowsFormsApplication5
             if (vida == 3 && t != 1)
             {
                 t = 1;//impede reprodução repitida
-                pictureBox2.Image = Image.FromFile(@"c:\imagem\gif\sirene.gif");
-                axWindowsMediaPlayer2.URL = @"c:\imagem\audios\sirene.mp4";
+                pictureBox2.Image = Image.FromFile(@"arquivos\gif\sirene.gif");
+                axWindowsMediaPlayer2.URL = @"arquivos\audios\sirene.mp4";
                 axWindowsMediaPlayer2.settings.playCount = 2000;
             }
         }
@@ -201,9 +202,17 @@ namespace WindowsFormsApplication5
                 axWindowsMediaPlayer1.Ctlcontrols.stop();
                 explosao.Play();
                 axWindowsMediaPlayer2.settings.playCount = 0;
-                axWindowsMediaPlayer2.URL = @"c:\imagem\audios\fimdejogo.mp3";
-                pictureBox2.Image = Image.FromFile(@"c:\imagem\gif\gameover.jpg");
+                axWindowsMediaPlayer2.URL = @"arquivos\audios\fimdejogo.mp3";
+                pictureBox2.Image = Image.FromFile(@"arquivos\gif\gameover.jpg");
                 axWindowsMediaPlayer2.settings.volume = 2000;
+            }
+        }
+
+        private void timer_padrao_Tick(object sender, EventArgs e)
+        {
+            tempo_padrao++;
+            if (tempo_padrao == 15){
+                config();
             }
         }
     }

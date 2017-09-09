@@ -1227,6 +1227,9 @@
         AAAAAAAAAAAAAAAn2/eAfDr5fZ0Lw8gH/9k=
 </value>
   </data>
+  <metadata name="timer_padrao.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>104, 17</value>
+  </metadata>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAkAAAAAAAEAIAAIjgAAlgAAAICAAAABACAAKAgBAJ6OAABgYAAAAQAgAKiUAADGlgEASEgAAAEA
