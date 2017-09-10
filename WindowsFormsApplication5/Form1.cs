@@ -28,13 +28,15 @@ namespace WindowsFormsApplication5
         int minigameid;//armazena id correspondente ao minigame, utilizada no reconhecimento
         int tempo_padrao; //tempo padrao
         string fala;
+        int ganha;
         //NOTA: Sempre que relacionar um novo número a um minigame anotar aqui:
         // 111 morto
         //-2 inicio
         // -1 configuração
         // 0 falas aleatórias
         // 1 desvio de tiros
-
+        // 7 ATIRAR
+        // 222 recomeça ganha
         private static SpeechRecognitionEngine engine;
         public Form1()
         {
@@ -45,7 +47,7 @@ namespace WindowsFormsApplication5
                 engine = new SpeechRecognitionEngine(); //caso haja erro nesta linha o problema é com os pacotes, verificar também a versão do sistema: 32 ou 64 bits
                 engine.SetInputToDefaultAudioDevice(); //caso haja erro nesta linha significa que o programa não conseguiu localizar um microfone para ser utilizado no reconhecimento
 
-                string[] words = {"iniciar", "fechar", "esquerda", "direita" };//gramática, novas palavras a serem reconhecidas devem ser introduzidas aqui
+                string[] words = {"iniciar", "fechar", "esquerda", "direita", "atirar" };//gramática, novas palavras a serem reconhecidas devem ser introduzidas aqui
 
                 engine.LoadGrammar(new Grammar(new GrammarBuilder(new Choices(words))));//carrega gramática
                 engine.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(rec);
@@ -64,6 +66,7 @@ namespace WindowsFormsApplication5
 
         private void começo()
         {
+            ganha = 0;
             fala = "";
             tempo_padrao = 0;
             minigameid = 111;
@@ -74,6 +77,8 @@ namespace WindowsFormsApplication5
             axWindowsMediaPlayer1.URL = @"arquivos\audios\fundo.wav"; //som de fundo
             axWindowsMediaPlayer1.settings.playCount = 1000; //quantidade de repetição do audio
             axWindowsMediaPlayer1.settings.volume = 30; //volume do audio
+            axWindowsMediaPlayer2.URL = @"arquivos\audios\iniciarfechar.wav";
+            axWindowsMediaPlayer2.settings.volume = 200;
             pictureBox2.Image = Image.FromFile(@"arquivos\gif\eva.jpg");
             minigameid = -2;
         }
@@ -85,6 +90,17 @@ namespace WindowsFormsApplication5
             fala = (e.Result.Text);
             switch (minigameid)//limitação de palavras da gramática baseado no id de cada caso
             {
+                case 7:
+                    switch (fala)
+                    {
+                        case "atirar":
+                            timer_padrao.Stop();
+                            tempo_padrao = 0;
+                            fim();
+
+                            break;
+                    }
+                            break;
                 case -2:
                     switch (fala)
                     {
@@ -95,15 +111,13 @@ namespace WindowsFormsApplication5
                         case "fechar":
                             Close();
                             break;
+
                     }
                     break;
                 case -1:
                     switch (fala)
                     {
-                        case "esquerda":
-
-                        break;
-                        case "direita":
+                        case "iniciar":
                             inicioataque();
                             fala = "";
                             break;
@@ -128,8 +142,9 @@ namespace WindowsFormsApplication5
                                 else
                                 {
                                     fala = "";
+                                    ganha++;
                                     desvio.Play();
-                                    ataque();
+                                    verifica();
                                 }
                                 break;
                             case "direita":
@@ -144,8 +159,9 @@ namespace WindowsFormsApplication5
                                 else
                                 {
                                     fala = "";
+                                    ganha++;
                                     desvio.Play();
-                                    ataque();
+                                    verifica();
                                 }
                                 break;
 
@@ -161,9 +177,9 @@ namespace WindowsFormsApplication5
 
         private void inicio()
         {
-            axWindowsMediaPlayer2.URL = @"arquivos\audios\Carregamento.wav";
+            axWindowsMediaPlayer2.URL = @"arquivos\audios\igo_saudaçao_calibraçao.wav";
             axWindowsMediaPlayer2.settings.volume = 2000;
-            pictureBox2.Image = Image.FromFile(@"arquivos\gif\igo.gif");
+            pictureBox2.Image = Image.FromFile(@"arquivos\gif\eva2.gif");
             timer_padrao.Start();
         }
 
@@ -173,7 +189,6 @@ namespace WindowsFormsApplication5
         private void config()
         {
             minigameid = -1; //id
-            beep_direita.Play();
         }
 
 
@@ -255,10 +270,24 @@ namespace WindowsFormsApplication5
         {
             if (vida < 5)//para alterar quantidade de vidas do jogador modifique esta linha
             {
-                ataque();
+                if (ganha >= 5)
+                {
+                    minigameid = 7;
+                    timer1.Stop();
+                    tempo_padrao = 0;
+                    axWindowsMediaPlayer2.settings.playCount = 0;
+                    axWindowsMediaPlayer2.URL = @"arquivos\audios\atirar.wav";
+                    axWindowsMediaPlayer2.settings.volume = 3000;
+                    timer_padrao.Start();
+                }
+                else
+                {
+                    ataque();
+                }
             }
             else //game over
             {
+                minigameid = 111;
                 vida = 6;
                 axWindowsMediaPlayer2.Ctlcontrols.stop();
                 axWindowsMediaPlayer1.Ctlcontrols.stop();
@@ -289,14 +318,43 @@ namespace WindowsFormsApplication5
             }
             else
             {
-                if (tempo_padrao == 15)
+                if (minigameid == 222)
                 {
-                    timer_padrao.Stop();
-                    tempo_padrao = 0;
-                    config();
-
+                    if (tempo_padrao == 14)
+                    {
+                        tempo_padrao = 0;
+                        timer_padrao.Stop();
+                        começo();
+                    }
+                }
+                if (minigameid == 111)
+                {
+                    if (tempo_padrao == 67)
+                    {
+                        timer_padrao.Stop();
+                        tempo_padrao = 0;
+                        config();
+                    }
+                }
+                if (minigameid == 7)
+                {
+                    if (tempo_padrao == 6)
+                    {
+                        tempo_padrao = 0;
+                        timer_padrao.Stop();
+                        ganha = 0;
+                        ataque();
+                    }
                 }
             }
+        }
+        private void fim()
+        {
+            minigameid = 222;
+            axWindowsMediaPlayer1.Ctlcontrols.stop();
+            axWindowsMediaPlayer2.settings.playCount = 0;
+            axWindowsMediaPlayer2.URL = @"arquivos\audios\fim.wav";
+            timer_padrao.Start();
         }
     }
 }
