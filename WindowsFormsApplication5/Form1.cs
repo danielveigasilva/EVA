@@ -13,7 +13,6 @@ namespace WindowsFormsApplication5
 {
     public partial class Form1 : Form
     {
-        SoundPlayer troca = new SoundPlayer(@"arquivos\audios\troca.wav"); //nao funciona
         SoundPlayer beep_direita = new SoundPlayer(@"arquivos\audios\beep_direita.wav"); //usado na configuração de audio
         SoundPlayer explosao = new SoundPlayer(@"arquivos\audios\explosao.wav"); //explosão final de game over
         SoundPlayer desvio = new SoundPlayer(@"arquivos\audios\desvio.wav"); //desvio de nave
@@ -28,6 +27,7 @@ namespace WindowsFormsApplication5
         int l;// variável de segurança de dado, sempre recebe valor de 'n'
         int minigameid;//armazena id correspondente ao minigame, utilizada no reconhecimento
         int tempo_padrao; //tempo padrao
+        string fala;
         //NOTA: Sempre que relacionar um novo número a um minigame anotar aqui:
         // 111 morto
         //-2 inicio
@@ -45,41 +45,68 @@ namespace WindowsFormsApplication5
                 engine = new SpeechRecognitionEngine(); //caso haja erro nesta linha o problema é com os pacotes, verificar também a versão do sistema: 32 ou 64 bits
                 engine.SetInputToDefaultAudioDevice(); //caso haja erro nesta linha significa que o programa não conseguiu localizar um microfone para ser utilizado no reconhecimento
 
-                string[] words = {"iniciar", "esquerda", "direita" };//gramática, novas palavras a serem reconhecidas devem ser introduzidas aqui
+                string[] words = {"iniciar", "fechar", "esquerda", "direita" };//gramática, novas palavras a serem reconhecidas devem ser introduzidas aqui
 
                 engine.LoadGrammar(new Grammar(new GrammarBuilder(new Choices(words))));//carrega gramática
                 engine.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(rec);
                 engine.RecognizeAsync(RecognizeMode.Multiple);
         }
 
+
+
         private void Form1_Load(object sender, EventArgs e)
         {
+            LoadSpeech(); //inicia o reconhecimento
+            começo();
+        }
+
+
+
+        private void começo()
+        {
+            fala = "";
+            tempo_padrao = 0;
+            minigameid = 111;
+            tempo = 0;
+            l = 3;
+            t = 0;
+            vida = 0;
             axWindowsMediaPlayer1.URL = @"arquivos\audios\fundo.wav"; //som de fundo
             axWindowsMediaPlayer1.settings.playCount = 1000; //quantidade de repetição do audio
-            axWindowsMediaPlayer1.settings.volume = 30;
+            axWindowsMediaPlayer1.settings.volume = 30; //volume do audio
+            pictureBox2.Image = Image.FromFile(@"arquivos\gif\eva.jpg");
             minigameid = -2;
-            LoadSpeech(); //inicia o reconhecimento
         }
+
+
 
         private void rec(object s, SpeechRecognizedEventArgs e)
         {
+            fala = (e.Result.Text);
             switch (minigameid)//limitação de palavras da gramática baseado no id de cada caso
             {
                 case -2:
-                    switch (e.Result.Text)
+                    switch (fala)
                     {
                         case "iniciar":
                             inicio();
                             minigameid = 111;
                             break;
+                        case "fechar":
+                            Close();
+                            break;
                     }
-                break;
+                    break;
                 case -1:
-                    switch (e.Result.Text)
+                    switch (fala)
                     {
                         case "esquerda":
-                            troca.Play();
+
                         break;
+                        case "direita":
+                            inicioataque();
+                            fala = "";
+                            break;
                     }
                 break;
                 case 1:
@@ -87,11 +114,12 @@ namespace WindowsFormsApplication5
                     {
                         tempo = 0;//seta a variável de tempo
                         timer1.Stop();//para o timer
-                        switch (e.Result.Text) //variável que possui o resultado obtido no reconhecimento
+                        switch (fala) //variável que possui o resultado obtido no reconhecimento
                         {
                             case "esquerda":
                                 if (l == 0)
                                 {
+                                    fala = "";
                                     impesq.Play();
                                     vida++;
                                     sirene();
@@ -99,6 +127,7 @@ namespace WindowsFormsApplication5
                                 }
                                 else
                                 {
+                                    fala = "";
                                     desvio.Play();
                                     ataque();
                                 }
@@ -106,6 +135,7 @@ namespace WindowsFormsApplication5
                             case "direita":
                                 if (l == 1)
                                 {
+                                    fala = "";
                                     impdir.Play();
                                     vida++;
                                     sirene();
@@ -113,6 +143,7 @@ namespace WindowsFormsApplication5
                                 }
                                 else
                                 {
+                                    fala = "";
                                     desvio.Play();
                                     ataque();
                                 }
@@ -124,6 +155,10 @@ namespace WindowsFormsApplication5
             }
             
         }
+
+
+
+
         private void inicio()
         {
             axWindowsMediaPlayer2.URL = @"arquivos\audios\Carregamento.wav";
@@ -131,14 +166,31 @@ namespace WindowsFormsApplication5
             pictureBox2.Image = Image.FromFile(@"arquivos\gif\igo.gif");
             timer_padrao.Start();
         }
+
+
+
+
         private void config()
         {
             minigameid = -1; //id
             beep_direita.Play();
         }
+
+
+
+        private void inicioataque()
+        {
+            ataque();
+        }
+
+
+
+
         private void ataque()//ataque da nave inimiga
         {
+
                 minigameid = 1;
+                //LoadSpeech(); //inicia o reconhecimento
                 Random randNum = new Random();
                 n = randNum.Next(2); //gera numero aleatório
                 tempo = 0;//seta a variável de tempo
@@ -160,6 +212,10 @@ namespace WindowsFormsApplication5
                 }
         }
 
+
+
+
+
         private void timer1_Tick(object sender, EventArgs e)
         {
             tempo++;//adiciona 1 a cada 1 segundo a variavel tempo
@@ -179,6 +235,9 @@ namespace WindowsFormsApplication5
                 verifica();
             }
         }
+
+
+
         private void sirene()//ativa sons de sirene depois de três impactos
         {
             if (vida == 3 && t != 1)
@@ -189,6 +248,9 @@ namespace WindowsFormsApplication5
                 axWindowsMediaPlayer2.settings.playCount = 2000;
             }
         }
+
+
+
         private void verifica()//verifica se jogador perdeu, caso contrário chama ataque() novamente
         {
             if (vida < 5)//para alterar quantidade de vidas do jogador modifique esta linha
@@ -205,14 +267,35 @@ namespace WindowsFormsApplication5
                 axWindowsMediaPlayer2.URL = @"arquivos\audios\fimdejogo.mp3";
                 pictureBox2.Image = Image.FromFile(@"arquivos\gif\gameover.jpg");
                 axWindowsMediaPlayer2.settings.volume = 2000;
+                timer_padrao.Start();
+                timer1.Stop();
             }
         }
+
+
+
 
         private void timer_padrao_Tick(object sender, EventArgs e)
         {
             tempo_padrao++;
-            if (tempo_padrao == 15){
-                config();
+            if (vida == 6)
+            {
+                if (tempo_padrao == 6)
+                {
+                    timer_padrao.Stop();
+                    tempo_padrao = 0;
+                    começo();
+                }
+            }
+            else
+            {
+                if (tempo_padrao == 15)
+                {
+                    timer_padrao.Stop();
+                    tempo_padrao = 0;
+                    config();
+
+                }
             }
         }
     }
