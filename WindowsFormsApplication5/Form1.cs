@@ -29,6 +29,7 @@ namespace WindowsFormsApplication5
         int tempo_padrao; //tempo padrao
         string fala;
         int ganha;
+        int ttt;
         //NOTA: Sempre que relacionar um novo número a um minigame anotar aqui:
         // 111 morto
         //-2 inicio
@@ -66,6 +67,7 @@ namespace WindowsFormsApplication5
 
         private void começo()
         {
+            ttt = 0;
             ganha = 0;
             fala = "";
             tempo_padrao = 0;
@@ -195,7 +197,9 @@ namespace WindowsFormsApplication5
 
         private void inicioataque()
         {
-            ataque();
+            ttt = 1;
+            axWindowsMediaPlayer2.URL = @"arquivos\audios\preataque.wav";
+            timer_padrao.Start();
         }
 
 
@@ -307,6 +311,16 @@ namespace WindowsFormsApplication5
         private void timer_padrao_Tick(object sender, EventArgs e)
         {
             tempo_padrao++;
+            if (ttt == 1)
+            {
+                if (tempo_padrao == 14)
+                {
+                    timer_padrao.Stop();
+                    tempo_padrao = 0;
+                    ttt = 0;
+                    ataque();
+                }
+            }
             if (vida == 6)
             {
                 if (tempo_padrao == 6)
