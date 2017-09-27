@@ -26,6 +26,7 @@ _img   -> PictureBox
 
 -----------------------------------------------------------------------------------------
 */
+
 //Bibliotecas
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,8 @@ using System.Windows.Forms;
 using Microsoft.Speech.Recognition; //biblioteca usada para o reconhecimento
 using System.Threading;
 using System.Media; //biblioteca usada para reprodução de audios
+//Bibliotecas
+
 namespace WindowsFormsApplication5
 {
     public partial class Form1 : Form
@@ -68,13 +71,16 @@ namespace WindowsFormsApplication5
         1   -> desvio de tiros
         7   -> ATIRAR
         222 -> recomeça ganha
+
          */
 
-        private static SpeechRecognitionEngine engine;
+        private static SpeechRecognitionEngine engine; //Reconhecimento de Fala
         public Form1()
         {
             InitializeComponent();
         }
+
+//Reconhecimento de Fala (Carregamento)
         private void LoadSpeech()
         {
                 engine = new SpeechRecognitionEngine(); //caso haja erro nesta linha o problema é com os pacotes, verificar também a versão do sistema: 32 ou 64 bits
@@ -87,8 +93,88 @@ namespace WindowsFormsApplication5
                 engine.RecognizeAsync(RecognizeMode.Multiple);
         }
 
+//----------------------------------------------Timers--------------------------------------------------
+ //Timer Padrão
+        private void timer_padrao_Tick(object sender, EventArgs e)
+        {
+            tempo_padrao_tmr++;
+            if (inicio_id == 1)
+            {
+                if (tempo_padrao_tmr == 14)
+                {
+                    timer_padrao.Stop();
+                    tempo_padrao_tmr = 0;
+                    inicio_id = 0;
+                    ataque();
+                }
+            }
+            if (vida_cont == 6)
+            {
+                if (tempo_padrao_tmr == 6)
+                {
+                    timer_padrao.Stop();
+                    tempo_padrao_tmr = 0;
+                    começo();
+                }
+            }
+            else
+            {
+                if (subgame_id == 222)
+                {
+                    if (tempo_padrao_tmr == 14)
+                    {
+                        tempo_padrao_tmr = 0;
+                        timer_padrao.Stop();
+                        começo();
+                    }
+                }
+                if (subgame_id == 111)
+                {
+                    if (tempo_padrao_tmr == 67)
+                    {
+                        timer_padrao.Stop();
+                        tempo_padrao_tmr = 0;
+                        config();
+                    }
+                }
+                if (subgame_id == 7)
+                {
+                    if (tempo_padrao_tmr == 6)
+                    {
+                        tempo_padrao_tmr = 0;
+                        timer_padrao.Stop();
+                        ganha_cont = 0;
+                        ataque();
+                    }
+                }
+            }
+        }
+
+//Timer Tiros
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            tempo_tmr++;//adiciona 1 a cada 1 segundo a variavel tempo
+            if (tempo_tmr == 4)//tempo de reação (do disparo até o impacto)
+            {
+                if (result_tiro_sct == 0)
+                {
+                    impactoesq_som.Play();
+                    vida_cont++;
+                }
+                else
+                {
+                    impactodir_som.Play();
+                    vida_cont++;
+                }
+                sirene();
+                verifica();
+            }
+        }
+
+//------------------------------------------------------------------------------------------------------
 
 
+//Load Form
         private void Form1_Load(object sender, EventArgs e)
         {
             LoadSpeech(); //inicia o reconhecimento
@@ -96,7 +182,7 @@ namespace WindowsFormsApplication5
         }
 
 
-
+//Configurações iniciais
         private void começo()
         {
             inicio_id = 0;
@@ -118,7 +204,7 @@ namespace WindowsFormsApplication5
         }
 
 
-
+//Ações de Reconhecimento de Fala
         private void rec(object s, SpeechRecognizedEventArgs e)
         {
             fala = (e.Result.Text);
@@ -207,8 +293,7 @@ namespace WindowsFormsApplication5
         }
 
 
-
-
+//Inicio Jogo (Apresentação)
         private void inicio()
         {
             axWindowsMediaPlayer2.URL = @"arquivos\audios\igo_saudaçao_calibraçao.wav";
@@ -218,15 +303,14 @@ namespace WindowsFormsApplication5
         }
 
 
-
-
+//Configurações ID
         private void config()
         {
             subgame_id = -1; //id
         }
 
 
-
+//Inicio do Ataque
         private void inicioataque()
         {
             inicio_id = 1;
@@ -235,8 +319,7 @@ namespace WindowsFormsApplication5
         }
 
 
-
-
+//Ataque
         private void ataque()//ataque da nave inimiga
         {
 
@@ -264,31 +347,7 @@ namespace WindowsFormsApplication5
         }
 
 
-
-
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            tempo_tmr++;//adiciona 1 a cada 1 segundo a variavel tempo
-            if (tempo_tmr == 4)//tempo de reação (do disparo até o impacto)
-            {
-                if (result_tiro_sct == 0)
-                {
-                    impactoesq_som.Play();
-                    vida_cont++;
-                }
-                else
-                {
-                    impactodir_som.Play();
-                    vida_cont++;
-                }
-                sirene();
-                verifica();
-            }
-        }
-
-
-
+//Verifica Sirene
         private void sirene()//ativa sons de sirene depois de três impactos
         {
             if (vida_cont == 3 && verifica_sirene_bin != 1)
@@ -301,7 +360,7 @@ namespace WindowsFormsApplication5
         }
 
 
-
+//Verifica Game Over 
         private void verifica()//verifica se jogador perdeu, caso contrário chama ataque() novamente
         {
             if (vida_cont < 5)//para alterar quantidade de vidas do jogador modifique esta linha
@@ -340,60 +399,7 @@ namespace WindowsFormsApplication5
 
 
 
-        private void timer_padrao_Tick(object sender, EventArgs e)
-        {
-            tempo_padrao_tmr++;
-            if (inicio_id == 1)
-            {
-                if (tempo_padrao_tmr == 14)
-                {
-                    timer_padrao.Stop();
-                    tempo_padrao_tmr = 0;
-                    inicio_id = 0;
-                    ataque();
-                }
-            }
-            if (vida_cont == 6)
-            {
-                if (tempo_padrao_tmr == 6)
-                {
-                    timer_padrao.Stop();
-                    tempo_padrao_tmr = 0;
-                    começo();
-                }
-            }
-            else
-            {
-                if (subgame_id == 222)
-                {
-                    if (tempo_padrao_tmr == 14)
-                    {
-                        tempo_padrao_tmr = 0;
-                        timer_padrao.Stop();
-                        começo();
-                    }
-                }
-                if (subgame_id == 111)
-                {
-                    if (tempo_padrao_tmr == 67)
-                    {
-                        timer_padrao.Stop();
-                        tempo_padrao_tmr = 0;
-                        config();
-                    }
-                }
-                if (subgame_id == 7)
-                {
-                    if (tempo_padrao_tmr == 6)
-                    {
-                        tempo_padrao_tmr = 0;
-                        timer_padrao.Stop();
-                        ganha_cont = 0;
-                        ataque();
-                    }
-                }
-            }
-        }
+//Fim de Jogo  
         private void fim()
         {
             subgame_id = 222;
