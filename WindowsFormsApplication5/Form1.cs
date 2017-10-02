@@ -93,6 +93,8 @@ namespace WindowsFormsApplication5
                 engine.RecognizeAsync(RecognizeMode.Multiple);
         }
 
+
+
 //----------------------------------------------Timers--------------------------------------------------
  //Timer Padrão
         private void timer_padrao_Tick(object sender, EventArgs e)
@@ -130,7 +132,7 @@ namespace WindowsFormsApplication5
                 }
                 if (subgame_id == 111)
                 {
-                    if (tempo_padrao_tmr == 67)
+                    if (tempo_padrao_tmr == 34)
                     {
                         timer_padrao.Stop();
                         tempo_padrao_tmr = 0;
@@ -296,7 +298,7 @@ namespace WindowsFormsApplication5
 //Inicio Jogo (Apresentação)
         private void inicio()
         {
-            axWindowsMediaPlayer2.URL = @"arquivos\audios\igo_saudaçao_calibraçao.wav";
+            axWindowsMediaPlayer2.URL = @"arquivos\audios\Carregamento_ola.wav";
             axWindowsMediaPlayer2.settings.volume = 2000;
             pictureBox2.Image = Image.FromFile(@"arquivos\gif\eva2.gif");
             timer_padrao.Start();
@@ -395,8 +397,6 @@ namespace WindowsFormsApplication5
                 timer1.Stop();
             }
         }
-
-
 
 
 //Fim de Jogo  
