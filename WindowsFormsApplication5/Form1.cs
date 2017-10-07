@@ -58,10 +58,12 @@ namespace WindowsFormsApplication5
         int result_tiro_sct;// variável de segurança de dado, sempre recebe valor de 'n'
         int subgame_id;//armazena id correspondente ao minigame, utilizada no reconhecimento
         int tempo_padrao_tmr; //tempo padrao
+        int tela_id;
+        int tela_cont;
         string fala;
         int ganha_cont;
         int inicio_id;
-
+        int timer_som_cont;
         /*INDICE ID MINIGAME
 
         111 -> morto
@@ -152,26 +154,61 @@ namespace WindowsFormsApplication5
             }
         }
 
-//Timer Tiros
-        private void timer1_Tick(object sender, EventArgs e)
+//Timer Som
+        private void timer_som_Tick(object sender, EventArgs e)
         {
-            tempo_tmr++;//adiciona 1 a cada 1 segundo a variavel tempo
-            if (tempo_tmr == 4)//tempo de reação (do disparo até o impacto)
+            timer_som_cont++;
+            if (timer_som_cont == 2)
             {
-                if (result_tiro_sct == 0)
-                {
-                    impactoesq_som.Play();
-                    vida_cont++;
-                }
-                else
-                {
-                    impactodir_som.Play();
-                    vida_cont++;
-                }
+                timer_som.Stop();
+                timer_som_cont = 0;
                 sirene();
                 verifica();
             }
         }
+
+//Timer Imagem
+        private void timer_imagem_Tick(object sender, EventArgs e)
+        {
+            tela_cont++;
+            switch (tela_id) {
+                case 1:
+                    if (tela_cont == 4)
+                    {
+                        pictureBox2.Image = Image.FromFile(@"arquivos\gif\abertura.png");
+                    }
+                    if (tela_cont == 8)
+                    {
+                        pictureBox1.Image = Image.FromFile(@"arquivos\gif\mic.gif");
+                        timer_imagem.Stop();
+                        tela_cont = 0;
+                    }
+                break;
+            }
+        }
+
+ //Timer Tiros
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            tempo_tmr++;//adiciona 1 a cada 1 segundo a variavel tempo
+                if (tempo_tmr == 3)//tempo de reação (do disparo até o impacto)
+                {
+                    if (result_tiro_sct == 0)
+                    {
+                        impactoesq_som.Play();
+                        vida_cont++;
+                        timer_som.Start();
+                    }
+                    else
+                    {
+                        impactodir_som.Play();
+                        vida_cont++;
+                        timer_som.Start();
+                    }
+                }
+
+          }
+            
 
 //------------------------------------------------------------------------------------------------------
 
@@ -187,6 +224,7 @@ namespace WindowsFormsApplication5
 //Configurações iniciais
         private void começo()
         {
+            timer_som_cont = 0;
             inicio_id = 0;
             ganha_cont = 0;
             fala = "";
@@ -199,34 +237,44 @@ namespace WindowsFormsApplication5
             axWindowsMediaPlayer1.URL = @"arquivos\audios\fundo.wav"; //som de fundo
             axWindowsMediaPlayer1.settings.playCount = 1000; //quantidade de repetição do audio
             axWindowsMediaPlayer1.settings.volume = 10; //volume do audio
-            axWindowsMediaPlayer2.URL = @"arquivos\audios\iniciarfechar.wav";
+            axWindowsMediaPlayer2.URL = @"arquivos\audios\abertura.wav";
             axWindowsMediaPlayer2.settings.volume = 200;
-            pictureBox2.Image = Image.FromFile(@"arquivos\gif\eva.jpg");
+            pictureBox2.Image = Image.FromFile(@"arquivos\gif\abertura.gif");
+            tela_id = 1;
+            timer_imagem.Start();
             subgame_id = -2;
         }
 
 
-//Ações de Reconhecimento de Fala
+//Chama ação do Reconhecimento de fala
         private void rec(object s, SpeechRecognizedEventArgs e)
         {
             fala = (e.Result.Text);
+            comandosvoz();
+        }
+
+//Comandos Voz
+private void comandosvoz()
+        {
             switch (subgame_id)//limitação de palavras da gramática baseado no id de cada caso
             {
                 case 7:
                     switch (fala)
                     {
                         case "atirar":
+                            fala = "";
                             timer_padrao.Stop();
                             tempo_padrao_tmr = 0;
                             fim();
 
                             break;
                     }
-                            break;
+                    break;
                 case -2:
                     switch (fala)
                     {
                         case "iniciar":
+                            fala = "";
                             inicio();
                             subgame_id = 111;
                             break;
@@ -244,54 +292,67 @@ namespace WindowsFormsApplication5
                             fala = "";
                             break;
                     }
-                break;
+                    break;
                 case 1:
                     if (vida_cont < 5)
                     {
-                        tempo_tmr = 0;//seta a variável de tempo
-                        timer1.Stop();//para o timer
-                        switch (fala) //variável que possui o resultado obtido no reconhecimento
+                        //tempo_tmr = 0;//seta a variável de tempo
+                        //timer1.Stop();//para o timer
+                        if (timer_som_cont == 0)
                         {
-                            case "esquerda":
-                                if (result_tiro_sct == 0)
-                                {
-                                    fala = "";
-                                    impactoesq_som.Play();
-                                    vida_cont++;
-                                    sirene();
-                                    verifica();
-                                }
-                                else
-                                {
-                                    fala = "";
-                                    ganha_cont++;
-                                    desvio_som.Play();
-                                    verifica();
-                                }
-                                break;
-                            case "direita":
-                                if (result_tiro_sct == 1)
-                                {
-                                    fala = "";
-                                    impactodir_som.Play();
-                                    vida_cont++;
-                                    sirene();
-                                    verifica();
-                                }
-                                else
-                                {
-                                    fala = "";
-                                    ganha_cont++;
-                                    desvio_som.Play();
-                                    verifica();
-                                }
-                                break;
+                            switch (fala) //variável que possui o resultado obtido no reconhecimento
+                            {
+                                case "esquerda":
+                                    if (result_tiro_sct == 0)
+                                    {
+                                        fala = "";
+                                        impactoesq_som.Play();
+                                        vida_cont++;
+                                        timer1.Stop();
+                                        timer_som.Start();
+                                        // sirene();
+                                        //verifica();
+                                    }
+                                    else
+                                    {
 
+                                        fala = "";
+                                        ganha_cont++;
+                                        desvio_som.Play();
+                                        timer1.Stop();
+                                        timer_som.Start();
+                                        //verifica();
+                                    }
+                                    break;
+                                case "direita":
+                                    if (result_tiro_sct == 1)
+                                    {
+
+                                        fala = "";
+                                        impactodir_som.Play();
+                                        vida_cont++;
+                                        timer1.Stop();
+                                        timer_som.Start();
+                                        //sirene();
+                                        //verifica();
+                                    }
+                                    else
+                                    {
+
+                                        fala = "";
+                                        ganha_cont++;
+                                        desvio_som.Play();
+                                        timer1.Stop();
+                                        timer_som.Start();
+                                        //verifica();
+                                    }
+                                    break;
+
+                            }
                         }
                     }
                     break;
             }
-            
         }
 
 
@@ -324,15 +385,16 @@ namespace WindowsFormsApplication5
 //Ataque
         private void ataque()//ataque da nave inimiga
         {
-
+                timer1.Stop();
+                tempo_tmr = 0;//seta a variável de tempo
                 subgame_id = 1;
                 //LoadSpeech(); //inicia o reconhecimento
                 Random randNum = new Random();
                 resul_tiro_rdm = randNum.Next(2); //gera numero aleatório
-                tempo_tmr = 0;//seta a variável de tempo
+                
                 //n = 0; //linha para teste (tira a aleatoriedade, sempre será esquerda)
 
-                Thread.Sleep(1500);//intervalo para carregar audio
+                //Thread.Sleep(1500);//intervalo para carregar audio
                 if (resul_tiro_rdm == 0)
                 {
                     esquerda_som.Play();
@@ -408,5 +470,32 @@ namespace WindowsFormsApplication5
             axWindowsMediaPlayer2.URL = @"arquivos\audios\fim.wav";
             timer_padrao.Start();
         }
+
+//Comando setas
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        { 
+            if (e.KeyCode == Keys.Left) {
+                fala = "esquerda";
+            }
+            if (e.KeyCode == Keys.Right)
+            {
+                fala = "direita";
+            }
+            if (e.KeyCode == Keys.Up)
+            {
+                fala = "atirar";
+            }
+            if (e.KeyCode == Keys.Enter)
+            {
+                fala = "iniciar";
+            }
+            if (e.KeyCode == Keys.Escape)
+            {
+                Close();
+            }
+            comandosvoz();
+        }
+
+
     }
 }
