@@ -64,6 +64,8 @@ namespace WindowsFormsApplication5
         int ganha_cont;
         int inicio_id;
         int timer_som_cont;
+        int tiro_bin;
+        int tiro_bin2;
         /*INDICE ID MINIGAME
 
         111 -> morto
@@ -88,7 +90,7 @@ namespace WindowsFormsApplication5
                 engine = new SpeechRecognitionEngine(); //caso haja erro nesta linha o problema é com os pacotes, verificar também a versão do sistema: 32 ou 64 bits
                 engine.SetInputToDefaultAudioDevice(); //caso haja erro nesta linha significa que o programa não conseguiu localizar um microfone para ser utilizado no reconhecimento
 
-                string[] words = {"iniciar", "fechar", "esquerda", "direita", "atirar" };//gramática, novas palavras a serem reconhecidas devem ser introduzidas aqui
+                string[] words = {"iniciar", "fechar", "esquerda", "direita", "atirar", "sim", "não" };//gramática, novas palavras a serem reconhecidas devem ser introduzidas aqui
 
                 engine.LoadGrammar(new Grammar(new GrammarBuilder(new Choices(words))));//carrega gramática
                 engine.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(rec);
@@ -101,8 +103,31 @@ namespace WindowsFormsApplication5
  //Timer Padrão
         private void timer_padrao_Tick(object sender, EventArgs e)
         {
+
             tempo_padrao_tmr++;
-            if (inicio_id == 1)
+            if (inicio_id == 77)
+            {
+                if (tempo_padrao_tmr == 30)
+                {
+                    timer_padrao.Stop();
+                    tempo_padrao_tmr = 0;
+                    inicio_id = 0;
+                    inicioataque();
+                }
+
+            }
+            if (inicio_id == 42)
+            {
+                if (tempo_padrao_tmr == 10)
+                {
+                    timer_padrao.Stop();
+                    tempo_padrao_tmr = 0;
+                    pictureBox1.Visible = true;
+                    inicio_id = 0;
+                    subgame_id = 4;                    
+                }
+            }
+            else if (inicio_id == 1)
             {
                 if (tempo_padrao_tmr == 14)
                 {
@@ -134,7 +159,7 @@ namespace WindowsFormsApplication5
                 }
                 if (subgame_id == 111)
                 {
-                    if (tempo_padrao_tmr == 34)
+                    if (tempo_padrao_tmr == 51)
                     {
                         timer_padrao.Stop();
                         tempo_padrao_tmr = 0;
@@ -143,7 +168,7 @@ namespace WindowsFormsApplication5
                 }
                 if (subgame_id == 7)
                 {
-                    if (tempo_padrao_tmr == 6)
+                    if (tempo_padrao_tmr == 4)
                     {
                         tempo_padrao_tmr = 0;
                         timer_padrao.Stop();
@@ -176,14 +201,28 @@ namespace WindowsFormsApplication5
                     if (tela_cont == 4)
                     {
                         pictureBox2.Image = Image.FromFile(@"arquivos\gif\abertura.png");
+                        axWindowsMediaPlayer2.URL = @"arquivos\audios\iniciarfechar.wav";
                     }
                     if (tela_cont == 8)
                     {
-                        pictureBox1.Image = Image.FromFile(@"arquivos\gif\mic.gif");
+                        pictureBox1.Visible = true;
                         timer_imagem.Stop();
                         tela_cont = 0;
                     }
                 break;
+                case 2:
+                    if (tela_cont >= 33)
+                    {
+                        pictureBox2.Image = Image.FromFile(@"arquivos\gif\fone.png");
+                        if (tela_cont == 51)
+                        {
+                            pictureBox2.Image = Image.FromFile(@"arquivos\gif\fone direita.gif");
+                            tela_cont = 0;
+                            pictureBox1.Visible = true;
+                            timer_imagem.Stop();
+                        }
+                    }
+                    break;
             }
         }
 
@@ -243,6 +282,8 @@ namespace WindowsFormsApplication5
             tela_id = 1;
             timer_imagem.Start();
             subgame_id = -2;
+            tiro_bin = 0;
+            tiro_bin2 = 0;
         }
 
 
@@ -258,6 +299,21 @@ private void comandosvoz()
         {
             switch (subgame_id)//limitação de palavras da gramática baseado no id de cada caso
             {
+                case 4:
+                    switch (fala)
+                    {
+                        case "sim":
+                            fala = "";
+                            pictureBox1.Visible = false;
+                            subgame_id = 111;
+                            drive();
+                            break;
+                        case "não":
+                            fala = "";
+                            axWindowsMediaPlayer2.URL = @"arquivos\audios\Nao_negue.wav";
+                            break;
+                    }
+                    break;
                 case 7:
                     switch (fala)
                     {
@@ -275,6 +331,7 @@ private void comandosvoz()
                     {
                         case "iniciar":
                             fala = "";
+                            pictureBox1.Visible = false;
                             inicio();
                             subgame_id = 111;
                             break;
@@ -287,8 +344,15 @@ private void comandosvoz()
                 case -1:
                     switch (fala)
                     {
-                        case "iniciar":
-                            inicioataque();
+                        case "direita":
+                            pictureBox1.Visible = false;
+                            parabens();
+                            fala = "";
+                            subgame_id = 111;
+                            break;
+                        case "esquerda":
+                            pictureBox1.Visible = false;
+                            axWindowsMediaPlayer2.URL = @"arquivos\audios\Inverta.mp3";
                             fala = "";
                             break;
                     }
@@ -319,6 +383,7 @@ private void comandosvoz()
                                         fala = "";
                                         ganha_cont++;
                                         desvio_som.Play();
+                                        pictureBox2.Image = Image.FromFile(@"arquivos\gif\tiro_direita.gif");
                                         timer1.Stop();
                                         timer_som.Start();
                                         //verifica();
@@ -342,6 +407,7 @@ private void comandosvoz()
                                         fala = "";
                                         ganha_cont++;
                                         desvio_som.Play();
+                                        pictureBox2.Image = Image.FromFile(@"arquivos\gif\tiro_esquerda.gif");
                                         timer1.Stop();
                                         timer_som.Start();
                                         //verifica();
@@ -363,6 +429,8 @@ private void comandosvoz()
             axWindowsMediaPlayer2.settings.volume = 2000;
             pictureBox2.Image = Image.FromFile(@"arquivos\gif\eva2.gif");
             timer_padrao.Start();
+            tela_id = 2;
+            timer_imagem.Start();
         }
 
 
@@ -373,10 +441,29 @@ private void comandosvoz()
         }
 
 
+        private void parabens()
+        {
+            subgame_id = 111;
+            inicio_id = 42;
+            pictureBox2.Image = Image.FromFile(@"arquivos\gif\preto.png");
+            axWindowsMediaPlayer2.URL = @"arquivos\audios\Parabens.wav";
+            timer_padrao.Start();
+        }
+        
+
+//hyperdrive
+        private void drive()
+        {
+            inicio_id = 77;
+            // aqui animação hyperdrive
+            axWindowsMediaPlayer2.URL = @"arquivos\audios\hyperdrive.mp3";
+            timer_padrao.Start();
+        }
 //Inicio do Ataque
         private void inicioataque()
         {
             inicio_id = 1;
+            pictureBox2.Image = Image.FromFile(@"arquivos\gif\sirene.gif");
             axWindowsMediaPlayer2.URL = @"arquivos\audios\preataque.wav";
             timer_padrao.Start();
         }
@@ -385,26 +472,41 @@ private void comandosvoz()
 //Ataque
         private void ataque()//ataque da nave inimiga
         {
+                result_tiro_sct = 3;
+                resul_tiro_rdm = 3;
                 timer1.Stop();
                 tempo_tmr = 0;//seta a variável de tempo
                 subgame_id = 1;
                 //LoadSpeech(); //inicia o reconhecimento
                 Random randNum = new Random();
                 resul_tiro_rdm = randNum.Next(2); //gera numero aleatório
-                
+            if (tiro_bin2 == 2)
+            {
+                resul_tiro_rdm = 1;
+                tiro_bin2 = 0;
+            }
+            else if (tiro_bin == 2)
+            {
+                resul_tiro_rdm = 0;
+                tiro_bin = 0;
+            }
                 //n = 0; //linha para teste (tira a aleatoriedade, sempre será esquerda)
 
                 //Thread.Sleep(1500);//intervalo para carregar audio
                 if (resul_tiro_rdm == 0)
                 {
+                    tiro_bin2++;
                     esquerda_som.Play();
+                    pictureBox2.Image = Image.FromFile(@"arquivos\gif\impacto_esquerda.gif");
                     timer1.Start(); //inicia o timer
                     result_tiro_sct = resul_tiro_rdm;
                 }
 
                 if (resul_tiro_rdm == 1)
                 {
+                    tiro_bin++;
                     direita_som.Play();
+                    pictureBox2.Image = Image.FromFile(@"arquivos\gif\impacto_direita.gif");
                     timer1.Start(); //inicia o timer
                     result_tiro_sct = resul_tiro_rdm;
                 }
@@ -467,6 +569,7 @@ private void comandosvoz()
             subgame_id = 222;
             axWindowsMediaPlayer1.Ctlcontrols.stop();
             axWindowsMediaPlayer2.settings.playCount = 0;
+            pictureBox2.Image = Image.FromFile(@"arquivos\gif\preto.png");
             axWindowsMediaPlayer2.URL = @"arquivos\audios\fim.wav";
             timer_padrao.Start();
         }
