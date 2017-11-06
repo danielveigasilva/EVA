@@ -157,7 +157,7 @@ namespace WindowsFormsApplication5
                         começo();
                     }
                 }
-                if (subgame_id == 111)
+                if (subgame_id == 112)
                 {
                     if (tempo_padrao_tmr == 51)
                     {
@@ -211,6 +211,14 @@ namespace WindowsFormsApplication5
                     }
                 break;
                 case 2:
+
+                    if (tela_cont == 12)
+                    {
+                        pictureBox2.Image = Image.FromFile(@"arquivos\gif\igor.gif");
+                        tela_id = 3;
+                    }
+                    break;
+                case 3:
                     if (tela_cont >= 33)
                     {
                         pictureBox2.Image = Image.FromFile(@"arquivos\gif\fone.png");
@@ -220,9 +228,11 @@ namespace WindowsFormsApplication5
                             tela_cont = 0;
                             pictureBox1.Visible = true;
                             timer_imagem.Stop();
+                            subgame_id = -1;
                         }
                     }
                     break;
+                    
             }
         }
 
@@ -425,12 +435,15 @@ private void comandosvoz()
 //Inicio Jogo (Apresentação)
         private void inicio()
         {
+            tela_cont = 0;
+            tempo_padrao_tmr = 0;
             axWindowsMediaPlayer2.URL = @"arquivos\audios\Carregamento_ola.wav";
             axWindowsMediaPlayer2.settings.volume = 2000;
-            pictureBox2.Image = Image.FromFile(@"arquivos\gif\eva2.gif");
+            pictureBox2.Image = Image.FromFile(@"arquivos\gif\carregamento.gif");
             timer_padrao.Start();
             tela_id = 2;
             timer_imagem.Start();
+            subgame_id = 112;
         }
 
 
@@ -445,8 +458,9 @@ private void comandosvoz()
         {
             subgame_id = 111;
             inicio_id = 42;
-            pictureBox2.Image = Image.FromFile(@"arquivos\gif\preto.png");
             axWindowsMediaPlayer2.URL = @"arquivos\audios\Parabens.wav";
+            pictureBox2.Image = Image.FromFile(@"arquivos\gif\igor.gif");
+            tempo_padrao_tmr = 0;
             timer_padrao.Start();
         }
         
@@ -457,6 +471,7 @@ private void comandosvoz()
             inicio_id = 77;
             // aqui animação hyperdrive
             axWindowsMediaPlayer2.URL = @"arquivos\audios\hyperdrive.mp3";
+            pictureBox2.Image = Image.FromFile(@"arquivos\gif\hyperspace.gif");
             timer_padrao.Start();
         }
 //Inicio do Ataque
@@ -538,6 +553,7 @@ private void comandosvoz()
                     tempo_padrao_tmr = 0;
                     axWindowsMediaPlayer2.settings.playCount = 0;
                     axWindowsMediaPlayer2.URL = @"arquivos\audios\atirar.wav";
+                    pictureBox2.Image = Image.FromFile(@"arquivos\gif\nave.png");
                     axWindowsMediaPlayer2.settings.volume = 3000;
                     timer_padrao.Start();
                 }
@@ -569,7 +585,7 @@ private void comandosvoz()
             subgame_id = 222;
             axWindowsMediaPlayer1.Ctlcontrols.stop();
             axWindowsMediaPlayer2.settings.playCount = 0;
-            pictureBox2.Image = Image.FromFile(@"arquivos\gif\preto.png");
+            pictureBox2.Image = Image.FromFile(@"arquivos\gif\tiro.gif");
             axWindowsMediaPlayer2.URL = @"arquivos\audios\fim.wav";
             timer_padrao.Start();
         }

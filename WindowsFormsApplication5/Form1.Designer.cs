@@ -94,7 +94,6 @@
             // pictureBox1
             // 
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
             this.pictureBox1.ImageLocation = "arquivos\\gif\\mic.gif";
             this.pictureBox1.Location = new System.Drawing.Point(0, 350);
             this.pictureBox1.Name = "pictureBox1";
