@@ -154,6 +154,7 @@ namespace WindowsFormsApplication5
                     {
                         tempo_padrao_tmr = 0;
                         timer_padrao.Stop();
+                        label1.Visible = false;
                         começo();
                     }
                 }
@@ -342,8 +343,14 @@ private void comandosvoz()
                         case "iniciar":
                             fala = "";
                             pictureBox1.Visible = false;
-                            inicio();
-                            subgame_id = 111;
+                            //adicionado--------
+                            tempo_padrao_tmr = 0;
+                            inicio_id = 0;
+                            //subgame_id = 111;
+                            inicioataque();
+                            //------------------
+                            //inicio();
+                            //subgame_id = 111;
                             break;
                         case "fechar":
                             Close();
@@ -585,7 +592,8 @@ private void comandosvoz()
             subgame_id = 222;
             axWindowsMediaPlayer1.Ctlcontrols.stop();
             axWindowsMediaPlayer2.settings.playCount = 0;
-            pictureBox2.Image = Image.FromFile(@"arquivos\gif\tiro.gif");
+            label1.Visible = true;
+            pictureBox2.Image = null;
             axWindowsMediaPlayer2.URL = @"arquivos\audios\fim.wav";
             timer_padrao.Start();
         }
@@ -600,6 +608,7 @@ private void comandosvoz()
             {
                 fala = "direita";
             }
+
             if (e.KeyCode == Keys.Up)
             {
                 fala = "atirar";
@@ -611,6 +620,10 @@ private void comandosvoz()
             if (e.KeyCode == Keys.Escape)
             {
                 Close();
+            }
+            if (e.KeyCode == Keys.S)
+            {
+                fala = "Sim";
             }
             comandosvoz();
         }
